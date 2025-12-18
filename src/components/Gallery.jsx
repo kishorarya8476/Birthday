@@ -10,13 +10,17 @@ function Gallery({ isActive }) {
   const photosRef = useRef([]);
   const lightboxImgRef = useRef(null);
 
-  const photos = [
-    { src: "/images/pic1.jpeg", alt: "Memory 1" },
-    { src: "/images/pic2.jpeg", alt: "Memory 2" },
-    { src: "/images/pic3.jpeg", alt: "Memory 3" },
-    { src: "/images/pic4.jpeg", alt: "Memory 4" },
-    { src: "/images/pic5.jpeg", alt: "Memory 5" },
-    { src: "/images/pic6.jpeg", alt: "Memory 6" },
+  const mediaItems = [
+    { src: "/images/pic2.jpg", alt: "Memory 2", type: 'image' },
+    { src: "/images/pic4.jpg", alt: "Memory 4", type: 'image' },
+    { src: "/images/pic1.jpg", alt: "Memory 1", type: 'image' },
+    { src: "/images/pic3.jpg", alt: "Memory 3", type: 'image' },
+    { src: "/images/pic5.jpg", alt: "Memory 5", type: 'image' },
+    { src: "/images/pic6.jpg", alt: "Memory 6", type: 'image' },
+    { src: "/images/pic7.jpg", alt: "Memory 7", type: 'image' },
+    { src: "/images/pic8.jpg", alt: "Memory 8", type: 'image' },
+    { src: "/images/vid1.mp4", alt: "Memory 9", type: 'video' },
+    // { src: "/images/.mp4", alt: "Memory 8", type: 'video' },
   ];
 
   // Reveal photos with GSAP when page becomes active
@@ -77,7 +81,12 @@ function Gallery({ isActive }) {
   }, [lightboxOpen]);
 
   const showNext = useCallback(() => {
-    const newIndex = (currentIndex + 1) % photos.length;
+    const newIndex = (currentIndex + 1) % mediaItems.length;
+    
+    // Pause any currently playing video when changing media
+    if (lightboxImgRef.current && lightboxImgRef.current.pause) {
+      lightboxImgRef.current.pause();
+    }
 
     // Animate transition
     if (lightboxImgRef.current) {
@@ -91,15 +100,33 @@ function Gallery({ isActive }) {
           gsap.fromTo(
             lightboxImgRef.current,
             { x: 100, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
+            { 
+              x: 0, 
+              opacity: 1, 
+              duration: 0.3, 
+              ease: "power2.out",
+              onComplete: () => {
+                // Auto-play video if the new item is a video
+                if (mediaItems[newIndex].type === 'video' && lightboxImgRef.current) {
+                  lightboxImgRef.current.play().catch(e => console.log('Autoplay prevented:', e));
+                }
+              }
+            }
           );
         },
       });
+    } else {
+      setCurrentIndex(newIndex);
     }
-  }, [currentIndex, photos.length]);
+  }, [currentIndex, mediaItems]);
 
   const showPrev = useCallback(() => {
-    const newIndex = (currentIndex - 1 + photos.length) % photos.length;
+    const newIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
+    
+    // Pause any currently playing video when changing media
+    if (lightboxImgRef.current && lightboxImgRef.current.pause) {
+      lightboxImgRef.current.pause();
+    }
 
     // Animate transition
     if (lightboxImgRef.current) {
@@ -113,12 +140,25 @@ function Gallery({ isActive }) {
           gsap.fromTo(
             lightboxImgRef.current,
             { x: -100, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
+            { 
+              x: 0, 
+              opacity: 1, 
+              duration: 0.3, 
+              ease: "power2.out",
+              onComplete: () => {
+                // Auto-play video if the new item is a video
+                if (mediaItems[newIndex].type === 'video' && lightboxImgRef.current) {
+                  lightboxImgRef.current.play().catch(e => console.log('Autoplay prevented:', e));
+                }
+              }
+            }
           );
         },
       });
+    } else {
+      setCurrentIndex(newIndex);
     }
-  }, [currentIndex, photos.length]);
+  }, [currentIndex, mediaItems]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -141,26 +181,56 @@ function Gallery({ isActive }) {
     <section className="gallery">
       <h2>📸 Our Beautiful Memories</h2>
       <div className="photos">
-        {photos.map((photo, index) => (
-          <img
+        {mediaItems.map((item, index) => (
+          <div 
             key={index}
             ref={(el) => (photosRef.current[index] = el)}
-            src={photo.src}
-            alt={photo.alt}
+            className="gallery-item"
             onClick={() => openLightbox(index)}
-            loading="lazy"
-          />
+          >
+            {item.type === 'video' ? (
+              <video
+                src={item.src}
+                alt={item.alt}
+                poster={item.poster}
+                className="gallery-video"
+                preload="metadata"
+              />
+            ) : (
+              <img
+                src={item.src}
+                alt={item.alt}
+                loading="lazy"
+                className="gallery-image"
+              />
+            )}
+            {item.type === 'video' && (
+              <div className="play-icon">▶</div>
+            )}
+          </div>
         ))}
       </div>
 
       {lightboxOpen && (
         <div className="lightbox" onClick={closeLightbox}>
-          <img
-            ref={lightboxImgRef}
-            src={photos[currentIndex].src}
-            alt={photos[currentIndex].alt}
-            onClick={(e) => e.stopPropagation()}
-          />
+          {mediaItems[currentIndex].type === 'video' ? (
+            <video
+              ref={lightboxImgRef}
+              src={mediaItems[currentIndex].src}
+              controls
+              autoPlay
+              className="lightbox-media"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              ref={lightboxImgRef}
+              src={mediaItems[currentIndex].src}
+              alt={mediaItems[currentIndex].alt}
+              className="lightbox-media"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
           <button
             className="lightbox-close"
             onClick={closeLightbox}

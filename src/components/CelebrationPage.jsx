@@ -263,8 +263,28 @@ function CelebrationPage({ onComplete, musicPlayerRef }) {
     }
   };
 
+  // Background images with transparency
+  const backgroundImages = [
+    { id: 1, src: '/images/bgimg.jpg', position: 'center center' },
+  ];
+
   return (
     <div className={`celebration-page ${lightsOn ? "lights-on" : ""}`}>
+      {/* Background Images */}
+      <div className="background-images">
+        {backgroundImages.map((img) => (
+          <div 
+            key={img.id}
+            className="background-image"
+            style={{
+              backgroundImage: `url(${img.src})`,
+              backgroundPosition: img.position,
+              opacity: 0.8, // 15% opacity
+            }}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
       {/* Confetti Effect */}
       {showConfetti && <Confetti />}
 
@@ -334,7 +354,7 @@ function CelebrationPage({ onComplete, musicPlayerRef }) {
           <div className="celebration-buttons">
             <h2 className="celebration-title">Let's Celebrate! 🎉</h2>
             <p className="celebration-subtitle">
-              Click the buttons to decorate
+              {/* Click the buttons to decorate */}
             </p>
 
             <div className="buttons-grid">
@@ -432,6 +452,12 @@ function CelebrationPage({ onComplete, musicPlayerRef }) {
                     "d",
                     "a",
                     "y",
+                    " ",
+                    "N",
+                    "e",
+                    "e",
+                    "l",
+                    "u"
                   ].map((letter, i) => (
                     <div key={i} className={`bunting-flag flag-${i % 3}`}>
                       {letter}

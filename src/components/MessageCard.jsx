@@ -15,16 +15,17 @@ function MessageCard({ isActive }) {
 
   const message = `Dear Neelu 💗💗 ,
 
-Your personalized birthday message goes here.
-
-
-
-This template supports multiple lines and formatting,
-so feel free to customize it completely to fit your style.
+I wish you a very Happy Birthday,
+I wish you happiness for life time,
+I wish you all the sucess,
+I wish you all the courage,
+I wish you all the Love,
+I wish you everything you wish for.
 
 Happy Birthday! 🎉
 
--- Kissu`;
+with all the love i carry 💗💗
+                              -- your Kishor`;
 
   // Handle page transitions
   useEffect(() => {
